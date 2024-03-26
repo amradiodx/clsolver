@@ -3,123 +3,91 @@
 #include <ctype.h>
 #include <string.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "includes.h"
 #include "init.h"
 #include "verify.h"
 #include "file.h"
 #include "words.h"
 #include "utils.h"
+#include "lists.h"
 
-int movenum;
+int mov_num;
+int word_count;
+
+uint64_t* words[GUESSES_ALLOWED];
+extern char results[TILE_CLR_COMBOS - WORDLEN][WORDBUFSIZE];
+
+struct moves mov[GUESSES_ALLOWED];
 
 int main(int argc, char **argv)
 {
-	char guess[7];
-	char resultsword[7];
+	(void) argc;
+	(void) argv;
 
-	
 	init();
 
 	do
 	{
+		if(mov_num > 0)
+		{
+			struct WordScore ms;
+			find_best_word(&ms);
+			printf("Recommended move is %s with entropy of %.4f\n", ms.word, ms.entropy);
+		}
+
 		/* Get starting word */
-		getguess(guess);
+		get_guess();
+
 
 		/* Get the results */
-		getresults(resultsword);
+		get_results();
 
-		/* Get unused letters */
-		char unusedltrs[CLWSTRLEN + 1];
-		char usedltrs[CLWSTRLEN + 1];
 
-		getunusedltrs(guess, resultsword, unusedltrs, usedltrs);
+		/* prospect_word is the word read from wordlist
+		   and compared with the guess and tile colors */
+		char prospect_word[WORDBUFSIZE];
 
-		printf("Unused: %s, used: %s\n", unusedltrs, usedltrs);
-
-		if(openwords() != EXIT_SUCCESS)
+		for(uint64_t i = 0; i < get_word_count(mov_num); ++i)
 		{
-			printf("Word open error\n");
-			return EXIT_FAILURE;
-		}
+			uint64_t pros = get_word(mov_num, i);
+			strncpy(prospect_word, (char*) &pros, sizeof(prospect_word));
 
-		if(openwwords() != EXIT_SUCCESS)
-		{
-			printf("Word open error\n");
-			return EXIT_FAILURE;
-		}
-
-
-		char s[CLWSTRLEN + 2];
-		while(getword(s) != NULL)
-		{
-			/* Remove newline character */
-			remnewln(s);
-
-			if(ispossibleword(guess, s, resultsword, unusedltrs) == true)
+			if(is_possible_word(mov[mov_num].gwptr, 
+						prospect_word, mov[mov_num].trptr) == true)
 			{
-				printf("%s is possible\n", s);
-				if(putword(s) == EOF)
+				// printf("%s is possible\n", prospect_word);
+
+				if(mov_num < (GUESSES_ALLOWED - 1))
 				{
-					printf("EXIT_FAILURE from putwords\n");
-					return EXIT_FAILURE;
+					add_word(mov_num + 1, prospect_word);
 				}
 			}
 		}
 
-		if(closewords() != EXIT_SUCCESS)
+		if(get_word_count(mov_num + 1) == 1)
 		{
-			printf("Word close error\n");
-			return EXIT_FAILURE;
+			char str [WORDBUFSIZE];
+			uint64_t wordi = get_word(mov_num + 1, 0);
+			strncpy(str, (char*) &wordi, sizeof(str));
+			printf("%s is the word!\n", str);
 		}
 
-		if(closewwords() != EXIT_SUCCESS)
+		printf("You entered %s\n", mov[mov_num].gwptr);
+
+		if(issolved(mov[mov_num].trptr) == true)
 		{
-			printf("Word close error\n");
-			return EXIT_FAILURE;
+			printf("Solved!\n");
+			break;
 		}
-
-		printf("Word list closed\n");
-
-		// rdwrdlst();
-		printf("You entered %s\n", guess);
-
-	} while(++movenum <= 6 && (issolved(resultsword) != true));
+	} while(++mov_num < GUESSES_ALLOWED);
 
 	char fnt[] = "wordlist%d.txt";
 	char fn[20];
-	sprintf(fn, fnt, movenum);
+	sprintf(fn, fnt, mov_num);
 	printf("%s\n", fn);
 
 	return 0;
 
-}
-
-
-
-int wordfinder(char wlword[], char result[])
-{
-	bool greenletter = false;
-	char workword[CLWSTRLEN + 1];
-	strncpy(wlword, workword, CLWSTRLEN + 1);
-
-	int i;
-	for(i = 0; i < CLWSTRLEN; ++i)
-	{
-		if(isupper(result[i]) && wlword[i] == result[i])
-		{
-			wlword[i] = result[i] = '-';
-		}
-	}
-	for(i = 0; i < CLWSTRLEN; ++i)
-	{
-		for(int j = 0; j < CLWSTRLEN; ++j)
-		{
-			if(wlword[j] == result[i])
-			{
-				wlword[j] = result[i] = '-';
-			}
-		}
-	}
-	return 0;
 }
 

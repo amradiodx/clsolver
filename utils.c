@@ -1,11 +1,24 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <ctype.h>
+#include <math.h>
+#include <stdint.h>
 #include "includes.h"
+#include "utils.h"
 
 
 
+void make_lower(char s[])
+{
+	for(size_t i = 0; i < strlen(s); ++i)
+	{
+		s[i] = tolower(s[i]);
+	}
+}
 
+/* Removes last newline characther from string */
 bool remnewln(char s [])
 {	
 	bool ret = false;
@@ -22,7 +35,7 @@ bool remnewln(char s [])
 
 int power(int x, int n)
 {
-	int i, p;
+	int p;
 
 	if(n == 0)
 	{
@@ -37,35 +50,84 @@ int power(int x, int n)
 	return (p);
 }
 
-void clrcntarray(struct cntarray* ca)
+
+void strclr(char str[], size_t size)
 {
-	ca->idx = -1;
-	memset(ca->ar, '\0', sizeof(ca->ar));
+	memset(str, '\0', size);
 }
 
-bool addcntarray(struct cntarray* ca, short sh, char c)
+
+int add_char_to_string(char str[], char c, size_t size)
 {
-	bool ret = true;
-	if(++ca->idx < sizeof(ca->ar))
+	size_t len = strlen(str);
+	if(len >= (size - 1))
 	{
-		ca->ar[ca->idx] = c;
+		return EXIT_FAILURE;
 	}
-	else
+
+	if(strchr(str, c) == NULL)
 	{
-		ret = false;
+		str[len] = c;
 	}
-	return ret;
+
+	return EXIT_SUCCESS;
 }
 
-int getcharcnt(char s[], char c)
+
+
+void str_intrsct(const char str1[], const char str2[], char rslt[], size_t rslt_size)
 {
+	int len1 = strlen(str1);
+	int len2 = strlen(str2);
+	strclr(rslt, rslt_size);
+
+	for(int i = 0; i < len1; ++i)
+	{
+		for(int j = 0; j < len2; ++j)
+		{
+			if(str1[i] == str2[j])
+			{
+				add_char_to_string(rslt, str1[i], rslt_size);
+			}
+		}
+	}
+}
+
+
+
+bool ismultltrs(char s[])
+{
+	char buf[8];
+	strcpy(buf, s);
+	for(size_t i = 0; i < strlen(s); ++i)
+	{
+		if(strchrcnt(buf, s[i], sizeof(buf)) > 1)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+int strchrcnt(char str[], char c, size_t size)
+{
+	char buf[size];
+	strncpy(buf, str, size);
 	int count = 0;
 	char* found = NULL;
-	while ((found = strchr(s, c)) != NULL)
+	while ((found = strchr(buf, c)) != NULL)
 	{
 		count++;
-		found = '\0';
+		*found = '-';
 	}
 	return count;
 }
 
+
+float get_entropy(unsigned int word_count, unsigned int total_words)
+{
+	float probability = ((float) word_count) / 
+		((float) total_words);
+			
+	return probability * log2f(1.0 / probability);
+}

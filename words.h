@@ -1,11 +1,15 @@
+#ifndef WORDL_WORDS_H
+#define WORDL_WORDS_H
+
+void get_guess();
+void get_results();
 
 
-void getguess(char* g);
-void getresults(char* r);
-
-void getunusedltrs(char iw[], char rw[], char unused[], char used[]);
-void addtousedltrs(char c);
-
-bool ispossibleword(char gs[], char w[], char r[], char u[]);
+bool is_possible_word(char gs[], char pr[], char tiles[]);
 
 bool issolved(char r[]);
+
+void find_best_word(struct WordScore* pws);
+
+
+#endif /* WORDL_WORDS_H */

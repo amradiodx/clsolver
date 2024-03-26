@@ -1,5 +1,9 @@
 
 
-extern char results[243][CLWSTRLEN];
+// extern char results[243][WORDBUFSIZE];
 
-void init();
+int init();
+
+int init_wordlist();
+
+void clexit();

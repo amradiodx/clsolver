@@ -2260,6 +2260,7 @@ whisk
 white
 whole
 whoop
+whorl
 whose
 widen
 wider
