@@ -1,24 +1,20 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <ctype.h>
 #include <string.h>
 #include <stdbool.h>
-#include <stdint.h>
+#include <stdint.h> 
 #include "includes.h"
 #include "init.h"
 #include "verify.h"
-#include "file.h"
 #include "words.h"
-#include "utils.h"
 #include "lists.h"
 
 int mov_num;
-int word_count;
 
-uint64_t* words[GUESSES_ALLOWED];
+uint64_t *words[GUESSES_ALLOWED];
 extern char results[TILE_CLR_COMBOS - WORDLEN][WORDBUFSIZE];
 
-struct moves mov[GUESSES_ALLOWED];
+struct guess gs[GUESSES_ALLOWED];
 
 int main(int argc, char **argv)
 {
@@ -27,13 +23,14 @@ int main(int argc, char **argv)
 
 	init();
 
-	do
-	{
-		if(mov_num > 0)
-		{
+	bool solved = false;
+
+	do {
+		if(mov_num > 0) {
 			struct WordScore ms;
 			find_best_word(&ms);
-			printf("Recommended move is %s with entropy of %.4f\n", ms.word, ms.entropy);
+			printf("Recommended move is %s with entropy of %.4f\n",
+					ms.word, ms.entropy);
 		}
 
 		/* Get starting word */
@@ -50,44 +47,28 @@ int main(int argc, char **argv)
 
 		for(uint64_t i = 0; i < get_word_count(mov_num); ++i)
 		{
-			uint64_t pros = get_word(mov_num, i);
-			strncpy(prospect_word, (char*) &pros, sizeof(prospect_word));
+			// uint64_t pros = get_word(mov_num, i);
+			strncpy(prospect_word, (char*) get_word(mov_num, i), sizeof(prospect_word));
 
-			if(is_possible_word(mov[mov_num].gwptr, 
-						prospect_word, mov[mov_num].trptr) == true)
-			{
-				// printf("%s is possible\n", prospect_word);
-
-				if(mov_num < (GUESSES_ALLOWED - 1))
-				{
+			if(is_possible_word(gs[mov_num].wordpt, 
+						 		prospect_word,
+								gs[mov_num].tilespt) == true) {
+				if(mov_num < (GUESSES_ALLOWED - 1)) {
 					add_word(mov_num + 1, prospect_word);
+					printf("%s\n", prospect_word);
 				}
 			}
 		}
 
-		if(get_word_count(mov_num + 1) == 1)
-		{
+		if(get_word_count(mov_num + 1) == 1) {
 			char str [WORDBUFSIZE];
-			uint64_t wordi = get_word(mov_num + 1, 0);
-			strncpy(str, (char*) &wordi, sizeof(str));
+			// uint64_t wordi = get_word(mov_num + 1, 0);
+			strncpy(str, get_word(mov_num + 1, 0), sizeof(str));
 			printf("%s is the word!\n", str);
+			solved = true;
 		}
-
-		printf("You entered %s\n", mov[mov_num].gwptr);
-
-		if(issolved(mov[mov_num].trptr) == true)
-		{
-			printf("Solved!\n");
-			break;
-		}
-	} while(++mov_num < GUESSES_ALLOWED);
-
-	char fnt[] = "wordlist%d.txt";
-	char fn[20];
-	sprintf(fn, fnt, mov_num);
-	printf("%s\n", fn);
+	} while((++mov_num < GUESSES_ALLOWED) && (solved == false));
 
 	return 0;
-
 }
 

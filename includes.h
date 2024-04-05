@@ -22,8 +22,6 @@
 #define LOGFILE "clwordle.log"
 #define SOLVED "ggggg"
 
-/* Possible results for each word */
-// #define POSSRESULTS (TILE_COLORS_LEN ^ WORDLEN)
 
 struct WordScore
 {
@@ -31,13 +29,19 @@ struct WordScore
 	float entropy;
 };
 
-struct moves
+struct guess
 {
-	uint64_t guess_word;
-	char* gwptr;
-	uint64_t tile_rslts;
-	char* trptr;
-	float entropy;
+	uint64_t 	word;
+	char*   	wordpt;
+	uint64_t 	tiles;
+	char* 		tilespt;
+};
+
+struct duplicates
+{
+	char letter;
+	int count;
+	int locations[4];
 };
 
 #endif /* WORDL_INCLUDES_H */

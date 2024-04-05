@@ -6,7 +6,7 @@
 
 
 FILE* rfptr;
-FILE* wfptr;
+// FILE* wfptr;
 FILE* logptr;
 
 extern int mov_num;
@@ -60,7 +60,7 @@ int close_log()
 }
 
 /* Open the list of words for the next guess */
-int openwwords()
+/* int openwwords()
 {	
 	char wordfile[32];
 	sprintf(wordfile, WORDFILE, mov_num + 1);
@@ -74,7 +74,7 @@ int openwwords()
 		return EXIT_FAILURE;
 	}
 	return EXIT_SUCCESS;
-}
+} */
 
 void clrewind()
 {
@@ -91,6 +91,7 @@ char* getword(char* word)
 	return fgets(word, sizeof(word), rfptr);
 }
 
+/*
 int putword(char* word)
 {
 	char nlword[32];
@@ -102,14 +103,15 @@ int putword(char* word)
 	}
 
 	return fputs(nlword, wfptr);
-}
+} */
 
 int closewords()
 {
 	return fclose(rfptr);
 }
 
+/*
 int closewwords()
 {
 	return fclose(wfptr);
-}
+} */

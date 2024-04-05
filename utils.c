@@ -9,7 +9,6 @@
 #include "utils.h"
 
 
-
 void make_lower(char s[])
 {
 	for(size_t i = 0; i < strlen(s); ++i)
@@ -38,14 +37,10 @@ int power(int x, int n)
 	int p;
 
 	if(n == 0)
-	{
 		return 1;
-	}
 
 	for(p = 1; n > 0; --n)
-	{
 		p = p * x;
-	}
 
 	return (p);
 }
@@ -94,18 +89,25 @@ void str_intrsct(const char str1[], const char str2[], char rslt[], size_t rslt_
 }
 
 
+void init_dupes(struct duplicates *dupes)
+{
+	dupes->letter = '\0';
+	dupes->count = 0;
+	dupes->locations[0] = -1;
+}
 
-bool ismultltrs(char s[])
+bool
+has_mult_ltrs(char s[])
 {
 	char buf[8];
-	strcpy(buf, s);
-	for(size_t i = 0; i < strlen(s); ++i)
-	{
-		if(strchrcnt(buf, s[i], sizeof(buf)) > 1)
-		{
+	strncpy(buf, s, sizeof(buf));
+	
+	for (size_t i = 0; i < strlen(s); ++i) {
+		if (strchrcnt(buf, s[i], sizeof(buf)) > 1) {
 			return true;
 		}
 	}
+
 	return false;
 }
 
@@ -115,14 +117,12 @@ int strchrcnt(char str[], char c, size_t size)
 	strncpy(buf, str, size);
 	int count = 0;
 	char* found = NULL;
-	while ((found = strchr(buf, c)) != NULL)
-	{
+	while ((found = strchr(buf, c)) != NULL) {
 		count++;
 		*found = '-';
 	}
 	return count;
 }
-
 
 float get_entropy(unsigned int word_count, unsigned int total_words)
 {
@@ -130,4 +130,12 @@ float get_entropy(unsigned int word_count, unsigned int total_words)
 		((float) total_words);
 			
 	return probability * log2f(1.0 / probability);
+}
+
+float get_entropy2(unsigned int word_count, unsigned int total_words)
+{
+	float probability = ((float) word_count) / 
+		((float) total_words);
+			
+	return -(probability * log2f(probability));
 }

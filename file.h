@@ -9,15 +9,15 @@ int close_log();
 int log_entry(char log[]);
 
 int openwords();
-int openwwords();
+// int openwwords();
 void clrewind();
 
 // int rdwrdlst();
 char* getword(char* word);
-int putword(char* word);
+// int putword(char* word);
 
 int closewords();
-int closewwords();
+// int closewwords();
 
 
 
