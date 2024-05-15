@@ -9,11 +9,10 @@
 #include "file.h"
 #include "lists.h"
 #include "letters.h"
+#include "words.h"
 
 extern int mov_num;
 extern struct guess gs[GUESSES_ALLOWED];
-
-extern uint64_t* words[GUESSES_ALLOWED];
 
 char results[TILE_CLR_COMBOS - WORDLEN][WORDBUFSIZE];
 
@@ -32,13 +31,10 @@ init()
 	char colors[sizeof(TILE_COLORS)];
 
 	strncpy(colors, TILE_COLORS, sizeof(colors));
-	printf("Size of colors is %lu\n", sizeof(colors));
-	printf("Size of results[1] is %lu\n", sizeof(results));
 
 
 	/* Get possible Wordle answers per word */
 	const int posresults = power(TILE_COLORS_LEN, WORDLEN); 
-	printf("Possible combinations is %d\n", posresults);
 
 	mov_num = 0;
 	int offset = 0;
@@ -53,7 +49,6 @@ init()
 		if(strchrcnt(buf, 'g', sizeof(buf)) == 4 &&
 				strchrcnt(buf, 'y', sizeof(buf)) == 1) {
 			++offset;
-			// printf("Color pattern %s to be eliminated\n", buf);
 			continue;
 		}
 
@@ -67,6 +62,8 @@ init()
 			buf[k] = c;
 		}
 	}
+
+	init_word_hash();
 
 	if(init_word_list() != EXIT_SUCCESS)
 	{
@@ -83,13 +80,15 @@ init()
 
 	char buf[WORDBUFSIZE];
 
-	while(getword(buf) != NULL) {
-		remnewln(buf);
+	while(getword(buf, sizeof(buf)) != NULL) {
+		remove_newline(buf);
 
-		bool dupes = has_mult_ltrs(buf);
-		add_word(mov_num, buf);
-		add_word2(mov_num, buf, dupes);
-
+		// bool dupes = has_mult_ltrs(buf);
+		// add_word(mov_num, buf);
+		add_word(mov_num, buf /*, dupes*/ );
+		uint32_t hash = encode_word_hash(buf);
+		uint32_t test = test_word_hash(buf, hash);
+/*
 		if (dupes == true) {
 			letters_t ltrs;
 			clr_ltrs(&ltrs);
@@ -106,7 +105,7 @@ init()
 				}
 			}
 			printf("\n");
-		}
+		} */
 	}
 
 
@@ -115,15 +114,13 @@ init()
 		return EXIT_FAILURE;
 	}
 
-	printf("Word count for index 0 is %lu\n", get_word_count(0));
 	atexit(clexit);
 
-	printf("Word count 1 is %lu\n", get_word_count(0));
-	printf("Word count 2 is %u\n", get_word_count2(0));
 	return EXIT_SUCCESS;
 }
 
-void get_char_locs(char str[], char c, size_t size, struct duplicates *dupes)
+void
+get_char_locs(char str[], char c, size_t size, struct duplicates *dupes)
 {
 	dupes->letter = c;
 	for(size_t i = 0; i < size; ++i) {
@@ -136,16 +133,9 @@ void get_char_locs(char str[], char c, size_t size, struct duplicates *dupes)
 
 
 
-void clexit()
+void
+clexit()
 {
 	free_word_list();
 	close_log();
-
-	for(int i = 0; i < GUESSES_ALLOWED; ++i)
-	{
-		if(words[i] != NULL)
-			free(words[i]);
-	}
-
-	printf("clexit() called\n");
 }

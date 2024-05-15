@@ -9,7 +9,8 @@
 #include "utils.h"
 
 
-void make_lower(char s[])
+void
+make_lower(char s[])
 {
 	for(size_t i = 0; i < strlen(s); ++i)
 	{
@@ -18,7 +19,8 @@ void make_lower(char s[])
 }
 
 /* Removes last newline characther from string */
-bool remnewln(char s [])
+bool
+remove_newline(char s [])
 {	
 	bool ret = false;
 	char* r = strrchr(s, '\n');
@@ -32,7 +34,8 @@ bool remnewln(char s [])
 	return ret;
 }
 
-int power(int x, int n)
+int
+power(int x, int n)
 {
 	int p;
 
@@ -46,13 +49,15 @@ int power(int x, int n)
 }
 
 
-void strclr(char str[], size_t size)
+void
+strclr(char str[], size_t size)
 {
 	memset(str, '\0', size);
 }
 
 
-int add_char_to_string(char str[], char c, size_t size)
+int
+add_char_to_string(char str[], char c, size_t size)
 {
 	size_t len = strlen(str);
 	if(len >= (size - 1))
@@ -70,7 +75,8 @@ int add_char_to_string(char str[], char c, size_t size)
 
 
 
-void str_intrsct(const char str1[], const char str2[], char rslt[], size_t rslt_size)
+void
+str_intrsct(const char str1[], const char str2[], char rslt[], size_t rslt_size)
 {
 	int len1 = strlen(str1);
 	int len2 = strlen(str2);
@@ -89,7 +95,8 @@ void str_intrsct(const char str1[], const char str2[], char rslt[], size_t rslt_
 }
 
 
-void init_dupes(struct duplicates *dupes)
+void
+init_dupes(struct duplicates *dupes)
 {
 	dupes->letter = '\0';
 	dupes->count = 0;
@@ -111,7 +118,8 @@ has_mult_ltrs(char s[])
 	return false;
 }
 
-int strchrcnt(char str[], char c, size_t size)
+int
+strchrcnt(char str[], char c, size_t size)
 {
 	char buf[size];
 	strncpy(buf, str, size);
@@ -124,7 +132,8 @@ int strchrcnt(char str[], char c, size_t size)
 	return count;
 }
 
-float get_entropy(unsigned int word_count, unsigned int total_words)
+float
+get_entropy(unsigned int word_count, unsigned int total_words)
 {
 	float probability = ((float) word_count) / 
 		((float) total_words);
@@ -132,7 +141,8 @@ float get_entropy(unsigned int word_count, unsigned int total_words)
 	return probability * log2f(1.0 / probability);
 }
 
-float get_entropy2(unsigned int word_count, unsigned int total_words)
+float
+get_entropy2(unsigned int word_count, unsigned int total_words)
 {
 	float probability = ((float) word_count) / 
 		((float) total_words);

@@ -13,5 +13,6 @@ void clr_ltrs(letters_t *ltrs);
 int add_ltr(letters_t *ltrs, char c);
 int get_ltr_cnt(letters_t *ltrs, char c);
 char get_ltr(int idx);
+int get_ltr_idx(char c);
 
 #endif /* WORDL_LETTERS_H */

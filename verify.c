@@ -7,7 +7,8 @@
 
 
 
-int verifyword(char *word)
+int
+verifyword(char *word)
 {
 	int len = strlen(word);
 
@@ -25,7 +26,8 @@ int verifyword(char *word)
 	return 1;
 }
 
-int verifyresults(char *word)
+int
+verifyresults(char *word)
 {
 	int ret = 0;
 	int len = strlen(word);

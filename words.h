@@ -1,7 +1,10 @@
 #ifndef WORDL_WORDS_H
 #define WORDL_WORDS_H
 
-void get_guess();
+void init_word_hash();
+uint32_t encode_word_hash(char c[]);
+uint32_t test_word_hash(char c[], uint32_t h);
+void get_guess(char *dflt);
 void get_results();
 bool is_possible_word(char gs[], char pr[], char tiles[]);
 void find_best_word(struct WordScore* pws);

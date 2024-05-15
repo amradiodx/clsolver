@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
 #include <math.h>
@@ -17,19 +18,62 @@ extern struct guess gs[GUESSES_ALLOWED];
 extern int mov_num;
 extern char results[TILE_CLR_COMBOS - WORDLEN][WORDBUFSIZE];
 
+uint32_t word_hash[WORDLEN * LTR_CNT];
+
 void
-get_guess()
+init_word_hash()
+{
+	for (int i = 0; i < WORDLEN * LTR_CNT; ++i) {
+		word_hash[i] = arc4random_uniform(RAND_MAX);
+	}
+}
+
+uint32_t
+encode_word_hash(char c[])
+{
+	uint32_t hash = 0;
+	for (int i = 0; i < WORDLEN; ++i) {
+		int idx = i * LTR_CNT + get_ltr_idx(c[i]);
+		hash ^= word_hash[idx];
+	}
+
+	return hash;
+}
+
+
+uint32_t
+test_word_hash(char c[], uint32_t h)
+{
+	uint32_t hash = h;
+	for (int i = 0; i < WORDLEN; ++i) {
+		int idx = i * LTR_CNT + get_ltr_idx(c[i]);
+		hash ^= word_hash[idx];
+	}
+
+	return hash;
+}
+
+void
+get_guess(char *dflt)
 {
 	do {
+		if (mov_num == 0) {
 		printf("\nPlease enter valid word for Guess %d: ", mov_num + 1);
+		} else {
+			printf("\nPlease enter valid word for Guess %d <RETURN to use %s>: ", mov_num + 1, dflt);
+		}
 		fgets(gs[mov_num].wordpt, 6, stdin);
 		make_lower(gs[mov_num].wordpt);
+		if(mov_num != 0 && strlen(gs[mov_num].wordpt) == 1) {
+			strncpy(gs[mov_num].wordpt, dflt, WORDBUFSIZE);
+		}
 		printf("Guess is %s\n", gs[mov_num].wordpt);
-		char* newln = strrchr(gs[mov_num].wordpt, '\n');
+		fpurge(stdin);
+		/*char* newln = strrchr(gs[mov_num].wordpt, '\n');
 		if(newln == NULL) {
 			char c = getchar();
 			(void) c;
-		}	
+		}*/
 	} while(verifyword(gs[mov_num].wordpt) == 0);
 }
 
@@ -144,9 +188,7 @@ find_best_word(struct WordScore* pws)
 				if(wc > wcmax) {
 					wcmax = wc;
 				}
-				// ++entropy_count;
-				// float buf = get_entropy((float) wc, (float) get_word_count(mov_num)); 
-				float buf = get_entropy2((float) wc, (float) get_word_count(mov_num));
+				float buf = get_entropy((float) wc, (float) get_word_count(mov_num));
 				entropy += buf;
 			}
 		}
@@ -154,7 +196,7 @@ find_best_word(struct WordScore* pws)
 		sprintf(log_buf, "Guess %s entropy is %.4f-- max word count is %lu\n", gw, entropy, wcmax);
 				log_entry(log_buf);
 		
-		if(entropy >= pws->entropy) {
+		if(entropy > pws->entropy) {
 			pws->entropy = entropy;
 			strncpy(pws->word, gw, WORDBUFSIZE);
 			// printf("Entropy return for %s is %.5f\n", pws->word, pws->entropy);
@@ -164,7 +206,8 @@ find_best_word(struct WordScore* pws)
 
 
 
-int handle_multiples(char *word, struct duplicates *dupes)
+int
+handle_multiples(char *word, struct duplicates *dupes)
 {
 	int mult_count = 0;
 	letters_t ltrs;
@@ -188,7 +231,8 @@ int handle_multiples(char *word, struct duplicates *dupes)
 }
 
 
-bool skip_tiles(char *tiles, struct duplicates *dupes, int cnt)
+bool
+skip_tiles(char *tiles, struct duplicates *dupes, int cnt)
 {
 	bool gray_tile_found = false;
 	while (cnt--) {

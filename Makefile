@@ -1,9 +1,9 @@
 CFLAGS=-Wall -Wextra -g
 
 
-clwordle: clwordle.o init.o words.o file.o verify.o utils.o lists.o letters.o
+clwordle: clwordle.o init.o words.o file.o verify.o utils.o lists.o letters.o hash.o
 	@echo "Linking clwordle"
-	cc -lm clwordle.o  init.o words.o file.o verify.o utils.o lists.o letters.o -o clwordle
+	cc -lm clwordle.o  init.o words.o file.o verify.o utils.o lists.o letters.o hash.o -o clwordle
 
 
 clwordle.o: clwordle.c
@@ -39,10 +39,14 @@ letters.o: letters.c
 	@echo "Compiling letters.c"
 	cc $(CFLAGS) -c letters.c
 
+hash.o: hash.c
+	@echo "Compiling hash.c"
+	cc $(CFLAGS) -c hash.c
+
 clean:
 	@echo "Removing object files"
-	@rm clwordle.o init.o words.o file.o verify.o utils.o lists.o letters.o 
+	@rm clwordle.o init.o words.o file.o verify.o utils.o lists.o letters.o hash.o
 
 debug:
 	@echo "Compiling debug version"
-	cc -g -lm  clwordle.c init.c words.c file.c verify.c utils.c lists.c letters.c -o clwordle
+	cc -g -lm  clwordle.c init.c words.c file.c verify.c utils.c lists.c letters.c hash.c -o clwordle

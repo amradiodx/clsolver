@@ -304,6 +304,7 @@ bunch
 bunny
 burly
 burnt
+burro
 burst
 bused
 bushy
@@ -562,6 +563,7 @@ disco
 ditch
 ditto
 ditty
+divan
 diver
 dizzy
 dodge

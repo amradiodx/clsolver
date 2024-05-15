@@ -4,6 +4,8 @@
 
 /* Length of Wordle word */
 #define WORDLEN 5
+
+/* Size of word buffer, large enough for occasional newlines */
 #define WORDBUFSIZE WORDLEN + 2
 #define GUESSES_ALLOWED 6
 
@@ -18,11 +20,14 @@
 
 #define BLOCK_SIZE 100
 
-#define WORDFILE "wordlist%d.txt"
-#define LOGFILE "clwordle.log"
-#define SOLVED "ggggg"
+#define WORDFILE	"wordlist%d.txt"
+#define LOGFILE		"clwordle.log"
+#define WORDS_EXT	"words-ext.txt"
+#define SOLVED 		"ggggg"
 
-
+struct word_list {
+	uint64_t word;
+};
 struct WordScore
 {
 	char word[WORDBUFSIZE];

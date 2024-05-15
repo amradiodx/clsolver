@@ -15,7 +15,8 @@ extern int mov_num;
 
 
 /* Open the current list of words */
-int openwords()
+int
+openwords()
 {
 	char wordfile[32];
 	sprintf(wordfile, WORDFILE, mov_num);
@@ -30,7 +31,8 @@ int openwords()
 }
 
 /* Open the list of words for the next guess */
-int open_log()
+int
+open_log()
 {	
 	printf("Opening %s for writing\n", LOGFILE);
 	logptr = fopen(LOGFILE, "w");
@@ -43,7 +45,8 @@ int open_log()
 	return EXIT_SUCCESS;
 }
 
-int log_entry(char log[])
+int
+log_entry(char log[])
 {
 	if(logptr == NULL)
 	{
@@ -54,7 +57,8 @@ int log_entry(char log[])
 	return fputs(log, logptr);
 }
 
-int close_log()
+int
+close_log()
 {
 	return fclose(logptr);
 }
@@ -76,42 +80,27 @@ int close_log()
 	return EXIT_SUCCESS;
 } */
 
-void clrewind()
+void
+clrewind()
 {
 	rewind(rfptr);
 }
 
-char* getword(char* word)
+char*
+getword(char* word, size_t size)
 {
 	if(rfptr == NULL)
 	{
 		return NULL;
 	}
 	
-	return fgets(word, sizeof(word), rfptr);
+	return fgets(word, size + 1, rfptr);
 }
 
-/*
-int putword(char* word)
-{
-	char nlword[32];
-	sprintf(nlword, "%s\n", word);
-	if(wfptr == NULL)
-	{
-		printf("putword failed\n");
-		return EXIT_FAILURE;
-	}
 
-	return fputs(nlword, wfptr);
-} */
-
-int closewords()
+int
+closewords()
 {
 	return fclose(rfptr);
 }
 
-/*
-int closewwords()
-{
-	return fclose(wfptr);
-} */

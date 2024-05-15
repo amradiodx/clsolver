@@ -30,3 +30,10 @@ get_ltr(int idx)
 {
 	return idx + ASCII_ALPHA_START;
 }
+
+
+int
+get_ltr_idx(char c)
+{
+	return c - ASCII_ALPHA_START;
+}
