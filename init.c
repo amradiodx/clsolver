@@ -10,6 +10,7 @@
 #include "lists.h"
 #include "letters.h"
 #include "words.h"
+#include "hash.h"
 
 extern int mov_num;
 extern struct guess gs[GUESSES_ALLOWED];

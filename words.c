@@ -18,41 +18,6 @@ extern struct guess gs[GUESSES_ALLOWED];
 extern int mov_num;
 extern char results[TILE_CLR_COMBOS - WORDLEN][WORDBUFSIZE];
 
-uint32_t word_hash[WORDLEN * LTR_CNT];
-
-void
-init_word_hash()
-{
-	for (int i = 0; i < WORDLEN * LTR_CNT; ++i) {
-		word_hash[i] = arc4random_uniform(RAND_MAX);
-	}
-}
-
-uint32_t
-encode_word_hash(char c[])
-{
-	uint32_t hash = 0;
-	for (int i = 0; i < WORDLEN; ++i) {
-		int idx = i * LTR_CNT + get_ltr_idx(c[i]);
-		hash ^= word_hash[idx];
-	}
-
-	return hash;
-}
-
-
-uint32_t
-test_word_hash(char c[], uint32_t h)
-{
-	uint32_t hash = h;
-	for (int i = 0; i < WORDLEN; ++i) {
-		int idx = i * LTR_CNT + get_ltr_idx(c[i]);
-		hash ^= word_hash[idx];
-	}
-
-	return hash;
-}
-
 void
 get_guess(char *dflt)
 {

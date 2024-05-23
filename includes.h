@@ -21,9 +21,11 @@
 #define BLOCK_SIZE 100
 
 #define WORDFILE	"wordlist%d.txt"
-#define LOGFILE		"clwordle.log"
+#define LOGFILE		"clsolver.log"
 #define WORDS_EXT	"words-ext.txt"
 #define SOLVED 		"ggggg"
+
+#define TO_CHAR(n) ((char*) (&n))
 
 struct word_list {
 	uint64_t word;
