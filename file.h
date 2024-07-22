@@ -2,18 +2,16 @@
 #define WORDL_FILE_H
 
 
-int initwords(char* wordfile);
+//int initwords(char* wordfile);
 
 int open_log();
 int close_log();
 int log_entry(char log[]);
 
-int openwords();
-void clrewind();
+//int openwords();
 
-char* getword(char* word, size_t size);
 
-int closewords();
+//int closewords();
 
 
 

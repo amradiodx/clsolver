@@ -1691,6 +1691,7 @@ segue
 seize
 semen
 sense
+sepal
 sepia
 serif
 serum

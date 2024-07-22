@@ -18,21 +18,6 @@ make_lower(char s[])
 	}
 }
 
-/* Removes last newline characther from string */
-bool
-remove_newline(char s [])
-{	
-	bool ret = false;
-	char* r = strrchr(s, '\n');
-
-	if(r != NULL)
-	{
-		*r = '\0';
-		ret = true;
-	}
-
-	return ret;
-}
 
 int
 power(int x, int n)
@@ -98,7 +83,6 @@ str_intrsct(const char str1[], const char str2[], char rslt[], size_t rslt_size)
 void
 init_dupes(struct duplicates *dupes)
 {
-	dupes->letter = '\0';
 	dupes->count = 0;
 	dupes->locations[0] = -1;
 }
@@ -121,10 +105,11 @@ has_mult_ltrs(char s[])
 int
 strchrcnt(char str[], char c, size_t size)
 {
+	int count = 0;
 	char buf[size];
 	strncpy(buf, str, size);
-	int count = 0;
 	char* found = NULL;
+
 	while ((found = strchr(buf, c)) != NULL) {
 		count++;
 		*found = '-';
@@ -132,6 +117,8 @@ strchrcnt(char str[], char c, size_t size)
 	return count;
 }
 
+
+/*
 float
 get_entropy(unsigned int word_count, unsigned int total_words)
 {
@@ -139,10 +126,10 @@ get_entropy(unsigned int word_count, unsigned int total_words)
 		((float) total_words);
 			
 	return probability * log2f(1.0 / probability);
-}
+} */
 
 float
-get_entropy2(unsigned int word_count, unsigned int total_words)
+get_entropy(unsigned int word_count, unsigned int total_words)
 {
 	float probability = ((float) word_count) / 
 		((float) total_words);

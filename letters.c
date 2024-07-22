@@ -15,7 +15,8 @@ clr_ltrs(letters_t *ltrs)
 int
 add_ltr(letters_t *ltrs, char c)
 {
-	return ++(ltrs->alpha_cnt[c - ASCII_ALPHA_START]);
+	++(ltrs->alpha_cnt[c - ASCII_ALPHA_START]);
+	return ltrs->alpha_cnt[c - ASCII_ALPHA_START];
 }
 
 int

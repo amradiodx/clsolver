@@ -6,6 +6,6 @@ int init();
 
 int init_wordlist();
 
-void get_char_locs(char str[], char c, size_t size, struct duplicates *dupes);
+// void get_char_locs(char str[], char c, size_t size, struct duplicates *dupes);
 
 void clexit();

@@ -5,8 +5,8 @@
 /* Length of Wordle word */
 #define WORDLEN 5
 
-/* Size of word buffer, large enough for occasional newlines */
-#define WORDBUFSIZE WORDLEN + 2
+/* Size of word buffer */
+#define WORDBUFSIZE WORDLEN + 1
 #define GUESSES_ALLOWED 6
 
 /* Possible results for each letter; g, y, or none */
@@ -26,6 +26,7 @@
 #define SOLVED 		"ggggg"
 
 #define TO_CHAR(n) ((char*) (&n))
+#define WORDS_DB	"clsolver.db"
 
 struct word_list {
 	uint64_t word;
@@ -38,15 +39,12 @@ struct WordScore
 
 struct guess
 {
-	uint64_t 	word;
-	char*   	wordpt;
-	uint64_t 	tiles;
-	char* 		tilespt;
+	char   	word[WORDBUFSIZE];
+	char	tiles[WORDBUFSIZE];
 };
 
 struct duplicates
 {
-	char letter;
 	int count;
 	int locations[4];
 };

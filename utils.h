@@ -6,7 +6,6 @@
 
 
 void make_lower(char s[]);
-bool remove_newline(char s []);
 
 int power(int x, int n);
 

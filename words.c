@@ -4,6 +4,7 @@
 #include <string.h>
 #include <math.h>
 #include <stdint.h>
+#include <ctype.h>
 #include <assert.h>
 #include "includes.h"
 #include "words.h"
@@ -18,30 +19,71 @@ extern struct guess gs[GUESSES_ALLOWED];
 extern int mov_num;
 extern char results[TILE_CLR_COMBOS - WORDLEN][WORDBUFSIZE];
 
+bool
+cb_input_filter(char c)
+{
+	return isalpha(c) != 0;
+}
+
+bool
+cb_results_filter(char c)
+{
+	if(isalpha(c) != 0) {
+		c = tolower(c);
+	}
+
+	return 'g' == c || 'y' == c || '-' == c;
+}
+
+void
+get_input(char word[], int length, bool (*pf)(char))
+{
+	int count = 0;
+	char c;
+	while ((c = getchar()) != '\n') {
+		if ((count < length) && (pf)(c)) {
+			word[count++] = c;
+		}
+		else {
+			word[count] = '\0';
+		}
+	}
+}
+
+
+
 void
 get_guess(char *dflt)
 {
 	do {
-		if (mov_num == 0) {
-		printf("\nPlease enter valid word for Guess %d: ", mov_num + 1);
-		} else {
-			printf("\nPlease enter valid word for Guess %d <RETURN to use %s>: ", mov_num + 1, dflt);
+		strclr(gs[mov_num].word, WORDBUFSIZE);
+		printf("\nPlease enter valid word for Guess %d", mov_num + 1);
+		if (mov_num != 0) {
+			printf(" <RETURN to use %s>", dflt);
 		}
-		fgets(gs[mov_num].wordpt, 6, stdin);
-		make_lower(gs[mov_num].wordpt);
-		if(mov_num != 0 && strlen(gs[mov_num].wordpt) == 1) {
-			strncpy(gs[mov_num].wordpt, dflt, WORDBUFSIZE);
+		printf(": ");
+
+		get_input(gs[mov_num].word, WORDLEN, cb_input_filter);
+		make_lower(gs[mov_num].word);
+		if(mov_num != 0 && strlen(gs[mov_num].word) == 0) {
+			strncpy(gs[mov_num].word, dflt, WORDBUFSIZE);
 		}
-		printf("Guess is %s\n", gs[mov_num].wordpt);
-		fpurge(stdin);
-		/*char* newln = strrchr(gs[mov_num].wordpt, '\n');
-		if(newln == NULL) {
-			char c = getchar();
-			(void) c;
-		}*/
-	} while(verifyword(gs[mov_num].wordpt) == 0);
+		printf("Guess is %s\n", gs[mov_num].word);
+	} while(verifyword(gs[mov_num].word) == 0);
 }
 
+
+void
+get_results()
+{
+	do {
+		printf("\nPlease entire valid results: ");
+		get_input(gs[mov_num].tiles, WORDLEN, cb_results_filter);
+		make_lower(gs[mov_num].tiles);
+	} while(verifyresults(gs[mov_num].tiles) == 0);
+}
+
+/*
 void
 get_results()
 {
@@ -55,17 +97,73 @@ get_results()
 			(void) c;
 		}
 	} while(verifyresults(gs[mov_num].tilespt) == 0);
+} */
+
+
+
+bool
+check_green1(char gs[], char pr[], char tiles[]) {
+	size_t len = strlen(tiles);
+
+	for (size_t i = 0; i < len; ++i) {
+		// If tile is green, letters must match. If not green,
+		// they must not match. XOR green with the match for a fail.
+		if((TILE_GREEN == tiles[i]) ^ (gs[i] == pr[i])) {
+			return false;
+		}
+		// If the tiles did match, replace the prospective word's
+		// letter with an asterisk. 
+		if (pr[i] == gs[i]) {
+			pr[i] = '*';
+		}
+	}
+	return true;
+}
+
+bool
+check_green2(char gs[], char pr[], char tiles[]) {
+	size_t len = strlen(tiles);
+
+	for(size_t i = 0; i < len; ++i) {
+		if(TILE_GREEN == tiles[i]) { 
+			if(pr[i] == gs[i]) {
+				pr[i] = '*';
+			}
+			else {
+				return false;
+			}
+		}
+		else {
+			if(pr[i] == gs[i]) {
+				return false;
+			}
+		}
+	}
+	return true;
 }
 
 bool
 is_possible_word(char gs[], char pr[], char tiles[])
 {
-	char prspct[WORDBUFSIZE];
-	strncpy(prspct, pr, sizeof(prspct));
+	char prspct1[WORDBUFSIZE];
+	char prspct2[WORDBUFSIZE];
+	strncpy(prspct1, pr, sizeof(prspct1));
 
-	size_t len = strlen(tiles);
+	const size_t len = strlen(tiles);
 
 	/* First pass processes green letters */
+	bool green1 = check_green1(gs, prspct1, tiles); 
+
+	strncpy(prspct2, pr, sizeof(prspct2));
+	bool green2 = check_green2(gs, prspct2, tiles); 
+
+	assert(green1 == green2);
+	assert(strcmp(prspct1, prspct2) == 0);
+	//printf("%s  %s\n", prspct1, prspct2);
+	if(green1 == false) return false;
+
+	/* First pass processes green letters */
+	/*
 	for(size_t i = 0; i < len; ++i) {
 		if(TILE_GREEN == tiles[i]) { 
 			if(prspct[i] == gs[i]) {
@@ -80,12 +178,12 @@ is_possible_word(char gs[], char pr[], char tiles[])
 				return false;
 			}
 		}
-	}
+	} */
 
 	/* Second pass processes yellow letters */
 	for(size_t i = 0; i < len; ++i) {
 		if(TILE_YELLOW == tiles[i]) {
-			char* c = strchr(prspct, gs[i]);
+			char* c = strchr(prspct2, gs[i]);
 			if(c == NULL) {
 				return false;
 			}
@@ -98,7 +196,7 @@ is_possible_word(char gs[], char pr[], char tiles[])
 	/* Third pass processes gray letters */
 	for(size_t i = 0; i < len; ++i) {
 		if(TILE_GRAY == tiles[i]) {
-			char* c = strchr(prspct, gs[i]);
+			char* c = strchr(prspct2, gs[i]);
 			if(c != NULL) {
 				return false;
 			}
@@ -129,7 +227,7 @@ find_best_word(struct WordScore* pws)
 		int counter = mults;
 	
 		/* Loop through all tile color combinations */
-		for (uint64_t j = 0; j < TILE_CLR_COMBOS - WORDLEN; ++j) {
+		for (uint64_t j = 0; j < (TILE_CLR_COMBOS - WORDLEN); ++j) {
 			char c[WORDBUFSIZE];
 			uint64_t wc = 0;
 			
@@ -153,8 +251,7 @@ find_best_word(struct WordScore* pws)
 				if(wc > wcmax) {
 					wcmax = wc;
 				}
-				float buf = get_entropy((float) wc, (float) get_word_count(mov_num));
-				entropy += buf;
+				entropy += get_entropy((float) wc, (float) get_word_count(mov_num));
 			}
 		}
 		char log_buf[256];
@@ -177,15 +274,16 @@ handle_multiples(char *word, struct duplicates *dupes)
 	int mult_count = 0;
 	letters_t ltrs;
 	clr_ltrs(&ltrs);
-	for (size_t i = 0; i < strnlen(word, WORDLEN); ++i)
+	for (size_t i = 0; i < strnlen(word, WORDLEN); ++i) {
+		strchrcnt(word, word[i], WORDLEN);
 		add_ltr(&ltrs, word[i]);
+	}
 
 	for(int i = 0; i < LTR_CNT; ++i)
 		if (ltrs.alpha_cnt[i] > 1) {
 			int loc_idx = 0;
-			dupes[mult_count].letter = get_ltr(i);
 			for (int k = 0; k < WORDLEN; ++k) {
-				if(dupes[mult_count].letter == word[k])
+				if(get_ltr(i) == word[k])
 					dupes[mult_count].locations[loc_idx++] = k;
 			}
 			dupes[mult_count].count = loc_idx;

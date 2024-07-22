@@ -31,6 +31,9 @@ verifyresults(char *word)
 {
 	int ret = 0;
 	int len = strlen(word);
+	if(len != WORDLEN) {
+		return 0;
+	}
 
 	int rslts = strspn(word, TILE_COLORS);
 

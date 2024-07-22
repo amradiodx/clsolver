@@ -10,7 +10,7 @@
 #include "lists.h"
 #include "letters.h"
 #include "words.h"
-#include "hash.h"
+#include "database.h"
 
 extern int mov_num;
 extern struct guess gs[GUESSES_ALLOWED];
@@ -23,10 +23,8 @@ init()
 	open_log();
 
 	for(int i = 0; i < GUESSES_ALLOWED; ++i) {
-		gs[i].word 		= 0ULL;
-		gs[i].tiles 	= 0ULL;
-		gs[i].wordpt	= (char*) &gs[i].word;
-		gs[i].tilespt	= (char*) &gs[i].tiles;
+		strclr(gs[i].word, WORDBUFSIZE);
+		strclr(gs[i].tiles, WORDBUFSIZE);
 	}
 	/* Get possible Wordle answers per character */
 	char colors[sizeof(TILE_COLORS)];
@@ -64,74 +62,38 @@ init()
 		}
 	}
 
-	init_word_hash();
-
 	if(init_word_list() != EXIT_SUCCESS)
 	{
 		printf("Wordlist initialization failure\n");
 		return EXIT_FAILURE;
 	}
 
-	if(openwords() != EXIT_SUCCESS)
+	int rc = open_db(WORDS_DB);
+	if(rc) {
+		return rc;
+	}	
+
+	struct get_words gw;
+	memset(&gw, 0, sizeof(gw));
+	gw.sql_dispatch = GET_WORDS;
+	char* sql2  = "SELECT word FROM words WHERE solution = TRUE ORDER BY word;";
+	rc = exec_db(sql2, &gw);
+	if (rc != 0) {
+		close_db();
+		return EXIT_FAILURE;
+	}
+
+	for (int i = 0; i < gw.iterator; ++i)
 	{
-		printf("Word open error\n");
-		return EXIT_FAILURE;
+		add_word(mov_num, TO_CHAR(gw.words[i]) /*, dupes*/ );
 	}
 
-
-	char buf[WORDBUFSIZE];
-
-	while(getword(buf, sizeof(buf)) != NULL) {
-		remove_newline(buf);
-
-		// bool dupes = has_mult_ltrs(buf);
-		// add_word(mov_num, buf);
-		add_word(mov_num, buf /*, dupes*/ );
-		uint32_t hash = encode_word_hash(buf);
-		uint32_t test = test_word_hash(buf, hash);
-/*
-		if (dupes == true) {
-			letters_t ltrs;
-			clr_ltrs(&ltrs);
-			struct duplicates dupes;
-			init_dupes(&dupes);
-			printf("Word with dupes is %s", buf);
-			for (int i = 0; i < WORDLEN; ++i) {
-				add_ltr(&ltrs, buf[i]);
-			}
-			for (int i = 0; i < LTR_CNT; ++i) {
-				int cnt = get_ltr_cnt(&ltrs, get_ltr(i));
-				if (cnt > 1) {
-					printf("  %c %d", get_ltr(i), cnt);
-				}
-			}
-			printf("\n");
-		} */
-	}
-
-
-	if(closewords() != EXIT_SUCCESS) {
-		printf("Word close error\n");
-		return EXIT_FAILURE;
-	}
+	close_db();
 
 	atexit(clexit);
 
 	return EXIT_SUCCESS;
 }
-
-void
-get_char_locs(char str[], char c, size_t size, struct duplicates *dupes)
-{
-	dupes->letter = c;
-	for(size_t i = 0; i < size; ++i) {
-		if(str[i] == c) {
-			dupes->locations[dupes->count++] = i;
-			str[i] = '*';
-		}
-	}
-}
-
 
 
 void

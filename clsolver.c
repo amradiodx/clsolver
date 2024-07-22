@@ -17,32 +17,25 @@ extern char results[TILE_CLR_COMBOS - WORDLEN][WORDBUFSIZE];
 
 struct guess gs[GUESSES_ALLOWED];
 
+void list_possible_words();
+
+
 int
 main(int argc, char **argv)
 {
 	(void) argc;
 	(void) argv;
 
-	init();
-
 	bool solved = false;
+
+	init();
 
 	do {
 		char recommendation[WORDBUFSIZE];
 		if(mov_num > 0) {
-			printf("\n----------------------------\n");
-			printf("Possible words are...\n\n");
-			for (size_t i = 0; i < get_word_count(mov_num); ++i) {
-				printf("%s", get_word(mov_num, i));
-				if (((i + 1) % 8) == 0) {
-					printf("\n");
-				} else {
-					printf("  ");
-				}
-			}
-			printf("\n\n");
-
 			struct WordScore ms;
+
+			list_possible_words();
 			find_best_word(&ms);
 			printf("Recommended move is %s with entropy of %.4f\n",
 					ms.word, ms.entropy);
@@ -65,9 +58,9 @@ main(int argc, char **argv)
 		{
 			strncpy(prospect_word, (char*) get_word(mov_num, i), sizeof(prospect_word));
 
-			if(is_possible_word(TO_CHAR(gs[mov_num].word), 
+			if(is_possible_word(gs[mov_num].word, 
 						 		prospect_word,
-								gs[mov_num].tilespt) == true) {
+								gs[mov_num].tiles) == true) {
 				if(mov_num < (GUESSES_ALLOWED - 1)) {
 					add_word(mov_num + 1, prospect_word);
 				}
@@ -85,3 +78,18 @@ main(int argc, char **argv)
 	return 0;
 }
 
+void
+list_possible_words()
+{
+	printf("\n----------------------------\n");
+	printf("Possible words are...\n\n");
+	for (size_t i = 0; i < get_word_count(mov_num); ++i) {
+		printf("%s", get_word(mov_num, i));
+		if (((i + 1) % 8) == 0) {
+			printf("\n");
+		} else {
+			printf("  ");
+		}
+	}
+	printf("\n\n");
+}

@@ -6,7 +6,6 @@
 
 #include "includes.h"
 #include "hash.h"
-#include "letters.h"
 
 
 
@@ -16,49 +15,6 @@ uint32_t mask = 0x00003fff;
 static int allocated = 0;
 static int freed = 0;
 
-
-uint32_t word_hash[WORDLEN * LTR_CNT];
-
-
-uint32_t
-get_word_hash(const int i)
-{
-	return word_hash[i];
-}
-
-
-void
-init_word_hash()
-{
-	for (int i = 0; i < WORDLEN * LTR_CNT; ++i) {
-		word_hash[i] = arc4random_uniform(RAND_MAX);
-	}
-}
-
-uint32_t
-encode_word_hash(char c[])
-{
-	uint32_t hash = 0;
-	for (int i = 0; i < WORDLEN; ++i) {
-		int idx = i * LTR_CNT + get_ltr_idx(c[i]);
-		hash ^= word_hash[idx];
-	}
-
-	return hash;
-}
-
-
-uint32_t
-test_word_hash(char c[], uint32_t h)
-{
-	uint32_t hash = h;
-	for (int i = 0; i < WORDLEN; ++i) {
-		int idx = i * LTR_CNT + get_ltr_idx(c[i]);
-		hash ^= word_hash[idx];
-	}
-
-	return hash;
-}
 
 
 

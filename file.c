@@ -15,6 +15,7 @@ extern int mov_num;
 
 
 /* Open the current list of words */
+/*
 int
 openwords()
 {
@@ -28,7 +29,7 @@ openwords()
 		return EXIT_FAILURE;
 	}
 	return EXIT_SUCCESS;
-}
+} */
 
 /* Open the list of words for the next guess */
 int
@@ -63,44 +64,13 @@ close_log()
 	return fclose(logptr);
 }
 
-/* Open the list of words for the next guess */
-/* int openwwords()
-{	
-	char wordfile[32];
-	sprintf(wordfile, WORDFILE, mov_num + 1);
-	
-	printf("Opening %s for writing\n", wordfile);
-	wfptr = fopen(wordfile, "w");
-	if(wfptr == NULL)
-	{
-
-		printf("%s file open error!\n", wordfile);
-		return EXIT_FAILURE;
-	}
-	return EXIT_SUCCESS;
-} */
-
-void
-clrewind()
-{
-	rewind(rfptr);
-}
-
-char*
-getword(char* word, size_t size)
-{
-	if(rfptr == NULL)
-	{
-		return NULL;
-	}
-	
-	return fgets(word, size + 1, rfptr);
-}
 
 
+
+/*
 int
 closewords()
 {
 	return fclose(rfptr);
-}
+} */
 
